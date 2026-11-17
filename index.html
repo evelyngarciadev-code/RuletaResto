@@ -7,6 +7,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
+      /* =========================================================
+         CONTROLES RÁPIDOS DE HOWIE (Modificá solo estos valores)
+         ========================================================= */
+      --ala-ancho: 200px;        /* Tamaño del ala */
+      --ala-arriba: -70px;       /* Más negativo = sube / Menos negativo = baja */
+      --ala-horizontal: -50%;    /* -50% es centro exacto (-45% derecha / -55% izquierda) */
+
+      --howie-ancho: 210px;      /* Tamaño del cuerpo de Howie atrás */
+      --howie-arriba: -38px;     /* Qué tanto se asoma detrás de la ruleta */
+
+      /* Colores de marca */
       --navy-deep: #091326;
       --navy-mid: #122342;
       --navy-light: #1c3561;
@@ -66,7 +77,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 145px;
+      padding-top: 150px;
     }
 
     .ruleta-wrapper {
@@ -78,13 +89,13 @@
       justify-content: center;
     }
 
-    /* Contenedor de Howie arriba detrás de la ruleta */
+    /* Cuerpo de Howie arriba detrás de la ruleta */
     .howie-contenedor {
       position: absolute;
-      bottom: calc(100% - 38px);
+      bottom: calc(100% + var(--howie-arriba));
       left: 50%;
       transform: translateX(-50%);
-      width: 210px;
+      width: var(--howie-ancho);
       z-index: 1;
       pointer-events: none;
       display: flex;
@@ -137,13 +148,13 @@
       display: block;
     }
 
-    /* Ala de Howie ajustada a 200px */
+    /* Ala de Howie controlada desde :root */
     .howie-ala {
       position: absolute;
-      top: -70px;
+      top: var(--ala-arriba);
       left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
+      transform: translateX(var(--ala-horizontal));
+      width: var(--ala-ancho);
       max-width: none;
       height: auto;
       z-index: 4;
@@ -154,7 +165,7 @@
     }
 
     .howie-ala.tick {
-      transform: translateX(-50%) rotate(-10deg);
+      transform: translateX(var(--ala-horizontal)) rotate(-10deg);
     }
 
     .btn-girar {
@@ -295,14 +306,6 @@
         width: 305px;
         height: 305px;
       }
-      .howie-contenedor {
-        width: 180px;
-        bottom: calc(100% - 32px);
-      }
-      .howie-ala {
-        width: 170px;
-        top: -46px;
-      }
     }
   </style>
 </head>
@@ -315,7 +318,7 @@
 
   <div class="escenario-ruleta">
     <div class="ruleta-wrapper">
-      
+      <!-- Cuerpo de Howie -->
       <div class="howie-contenedor">
         <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
       </div>
