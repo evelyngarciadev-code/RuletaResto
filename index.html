@@ -3,14 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruleta de Premios - Howard Johnson Villa Carlos Paz</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <title>Ruleta de Premios | Howard Johnson Plaza Villa Carlos Paz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --navy-deep: #091326;
+      --navy-mid: #122342;
+      --navy-light: #1c3561;
+      --gold-light: #f6e29c;
+      --gold-mid: #d4af37;
+      --gold-dark: #997415;
+      --cream: #faf8f5;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Montserrat', sans-serif;
     }
 
     body {
@@ -19,109 +28,171 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, #1b365d 0%, #0b182e 100%);
-      color: #ffffff;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at center, #142749 0%, #070f1e 100%);
+      color: var(--cream);
+      font-family: 'Montserrat', sans-serif;
       overflow-x: hidden;
-      padding: 20px;
+      padding: 24px 16px;
     }
 
-    .contenedor-juego {
+    /* Encabezado sutil y elegante */
+    .header-marca {
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .header-marca span {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gold-light);
+      opacity: 0.85;
+      margin-bottom: 4px;
+    }
+
+    .header-marca h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 3px;
+    }
+
+    /* Contenedor general con espacio arriba garantizado para Howie */
+    .escenario-ruleta {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      /* Espacio superior para que Howie asomado arriba no se corte */
-      margin-top: 115px;
+      padding-top: 135px; /* Aire superior para que Howie siempre sea visible */
     }
 
     .ruleta-wrapper {
       position: relative;
-      width: 340px;
-      height: 340px;
+      width: 360px;
+      height: 360px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Cuerpo de Howie asomado desde atrás arriba */
+    /* Cuerpo de Howie asomándose desde atrás arriba */
     .howie-cuerpo {
       position: absolute;
-      top: -125px;
+      bottom: calc(100% - 38px); /* Se apoya justo detrás del borde superior de la ruleta */
       left: 50%;
       transform: translateX(-50%);
-      width: 190px;
+      width: 210px;
       height: auto;
       z-index: 1; /* Detrás de la ruleta */
       pointer-events: none;
-      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45));
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
     }
 
-    /* Canvas de la ruleta */
+    /* Bisel exterior metálico dorado de lujo */
+    .bisel-exterior {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      padding: 12px;
+      background: linear-gradient(135deg, #f6e29c 0%, #c59b27 35%, #7d5c0c 65%, #f3dc91 100%);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.75),
+        0 0 35px rgba(212, 175, 55, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      z-index: 2; /* Por delante del torso inferior de Howie */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Aro interior oscuro de contraste */
+    .bisel-interior {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      padding: 4px;
+      background: #081122;
+      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     canvas#ruleta {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      box-shadow: 0 0 0 8px #f58220, 0 0 30px rgba(0, 0, 0, 0.7);
-      position: relative;
-      z-index: 2; /* Tapa la parte baja de Howie */
+      display: block;
     }
 
-    /* Ala de Howie por delante funcionando como puntero superior */
+    /* Ala de Howie por delante arriba actuando como puntero */
     .howie-ala {
       position: absolute;
-      top: -22px;
+      top: -26px;
       left: 50%;
       transform: translateX(-50%);
-      width: 68px;
+      width: 74px;
       height: auto;
-      z-index: 3; /* Por delante del borde superior de la ruleta */
+      z-index: 4; /* Siempre visible por delante del bisel superior */
       pointer-events: none;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
-      transition: transform 0.08s ease;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.65));
+      transform-origin: top center;
+      transition: transform 0.08s ease-out;
     }
 
-    /* Efecto de rebote del ala cuando pasan los gajos */
     .howie-ala.tick {
-      transform: translateX(-50%) rotate(-14deg);
+      transform: translateX(-50%) rotate(-12deg);
     }
 
-    /* Botón central para girar */
+    /* Medallón central para girar */
     .btn-girar {
       position: absolute;
-      z-index: 4;
-      width: 76px;
-      height: 76px;
+      z-index: 5;
+      width: 82px;
+      height: 82px;
       border-radius: 50%;
-      border: 4px solid #ffffff;
-      background: linear-gradient(145deg, #f58220, #d96608);
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: 0.5px;
+      border: 2px solid var(--gold-light);
+      background: radial-gradient(circle at 30% 30%, #244275 0%, #0b172e 85%);
+      color: var(--gold-light);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1.5px;
       cursor: pointer;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow:
+        0 0 0 5px rgba(212, 175, 55, 0.25),
+        0 8px 20px rgba(0, 0, 0, 0.7),
+        inset 0 1px 3px rgba(255, 255, 255, 0.35);
+      transition: all 0.25s ease;
       text-transform: uppercase;
     }
 
     .btn-girar:hover:not(:disabled) {
-      transform: scale(1.07);
-      box-shadow: 0 8px 20px rgba(245, 130, 32, 0.6);
+      transform: scale(1.06);
+      color: #ffffff;
+      border-color: #ffffff;
+      box-shadow:
+        0 0 0 6px rgba(212, 175, 55, 0.4),
+        0 10px 25px rgba(212, 175, 55, 0.35);
     }
 
     .btn-girar:disabled {
-      opacity: 0.75;
+      opacity: 0.7;
       cursor: not-allowed;
     }
 
-    /* Popup Modal de Premio Ganado */
+    /* Tarjeta emergente sofisticada */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(7, 15, 30, 0.82);
-      backdrop-filter: blur(4px);
+      background: rgba(5, 11, 24, 0.85);
+      backdrop-filter: blur(6px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -131,60 +202,74 @@
 
     .modal-overlay.activo {
       display: flex;
-      animation: fadeIn 0.25s ease forwards;
+      animation: fadeIn 0.3s ease forwards;
     }
 
     .modal-card {
-      background: linear-gradient(160deg, #ffffff 0%, #f2f5fa 100%);
-      color: #1b365d;
+      position: relative;
+      background: linear-gradient(165deg, #132647 0%, #091326 100%);
+      color: #ffffff;
       width: 100%;
-      max-width: 360px;
-      border-radius: 20px;
-      padding: 32px 24px;
+      max-width: 370px;
+      border-radius: 18px;
+      padding: 36px 28px;
       text-align: center;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
-      border: 4px solid #f58220;
-      transform: scale(0.9);
-      animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      border: 1.5px solid rgba(212, 175, 55, 0.65);
+      box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(212, 175, 55, 0.15);
+      animation: popUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .modal-subtitulo {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+      opacity: 0.9;
     }
 
     .modal-titulo {
-      font-size: 22px;
-      font-weight: 800;
-      color: #f58220;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 23px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
     }
 
     .modal-premio {
-      font-size: 26px;
-      font-weight: 800;
-      color: #1b365d;
-      background: #e6eef8;
-      padding: 16px 12px;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--gold-light);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 18px 16px;
       border-radius: 12px;
-      margin-bottom: 24px;
-      border: 2px dashed #1b365d;
+      margin-bottom: 26px;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      letter-spacing: 0.5px;
     }
 
     .btn-reiniciar {
-      background: #1b365d;
-      color: #ffffff;
+      background: linear-gradient(135deg, #e5c465 0%, #b88d21 100%);
+      color: #091326;
       border: none;
       padding: 14px 28px;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       border-radius: 50px;
       cursor: pointer;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: background 0.2s ease, transform 0.15s ease;
+      letter-spacing: 1.5px;
+      transition: all 0.2s ease;
       width: 100%;
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.3);
     }
 
     .btn-reiniciar:hover {
-      background: #f58220;
       transform: translateY(-2px);
+      filter: brightness(1.08);
     }
 
     @keyframes fadeIn {
@@ -193,47 +278,60 @@
     }
 
     @keyframes popUp {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
     }
 
-    @media (max-width: 400px) {
+    @media (max-width: 420px) {
+      .escenario-ruleta {
+        padding-top: 115px;
+      }
       .ruleta-wrapper {
-        width: 295px;
-        height: 295px;
+        width: 305px;
+        height: 305px;
       }
       .howie-cuerpo {
-        width: 165px;
-        top: -108px;
+        width: 180px;
+        bottom: calc(100% - 32px);
       }
       .howie-ala {
-        width: 58px;
-        top: -18px;
+        width: 62px;
+        top: -22px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="contenedor-juego">
+  <div class="header-marca">
+    <span>Howard Johnson Plaza</span>
+    <h1>Villa Carlos Paz</h1>
+  </div>
+
+  <div class="escenario-ruleta">
     <div class="ruleta-wrapper">
-      <!-- Cuerpo de Howie asomándose desde atrás arriba -->
+      <!-- Cuerpo de Howie asomado desde atrás arriba -->
       <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
 
-      <!-- Ruleta -->
-      <canvas id="ruleta" width="500" height="500"></canvas>
+      <!-- Bisel dorado elegante + Canvas de ruleta -->
+      <div class="bisel-exterior">
+        <div class="bisel-interior">
+          <canvas id="ruleta" width="600" height="600"></canvas>
+        </div>
+      </div>
 
-      <!-- Ala de Howie arriba funcionando como puntero central -->
+      <!-- Ala de Howie por delante arriba marcando el ganador -->
       <img src="ha.png" alt="Puntero Howie" class="howie-ala" id="howieAla">
 
-      <!-- Botón Girar -->
+      <!-- Botón central -->
       <button class="btn-girar" id="btnGirar">Girar</button>
     </div>
   </div>
 
-  <!-- Tarjeta emergente de premio -->
+  <!-- Popup de premio ganado -->
   <div class="modal-overlay" id="modalPremio">
     <div class="modal-card">
+      <div class="modal-subtitulo">Howard Johnson Plaza</div>
       <div class="modal-titulo">¡Felicitaciones ganaste!</div>
       <div class="modal-premio" id="textoPremioGanado">Premio</div>
       <button class="btn-reiniciar" id="btnReiniciar">Volver a jugar</button>
@@ -244,31 +342,45 @@
     const canvas = document.getElementById('ruleta');
     const ctx = canvas.getContext('2d');
     const btnGirar = document.getElementById('btnGirar');
+    const howieCuerpo = document.getElementById('howieCuerpo');
     const howieAla = document.getElementById('howieAla');
     const modalPremio = document.getElementById('modalPremio');
     const textoPremioGanado = document.getElementById('textoPremioGanado');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
-    // Configuración de los 8 gajos:
-    // El "Premio dificil" tiene el color especial (dorado) y menor peso de probabilidad.
-    // El "Premio facil" tiene el color base normal y mayor peso de probabilidad.
+    // Respaldo automático de rutas por si las imágenes están en subcarpetas (img/ o assets/)
+    function configurarRutaImagen(imgEl, nombreArchivo) {
+      const rutas = [nombreArchivo, `img/${nombreArchivo}`, `assets/${nombreArchivo}`, `images/${nombreArchivo}`];
+      let intento = 0;
+      imgEl.onerror = function() {
+        intento++;
+        if (intento < rutas.length) {
+          imgEl.src = rutas[intento];
+        }
+      };
+    }
+    configurarRutaImagen(howieCuerpo, 'hc.png');
+    configurarRutaImagen(howieAla, 'ha.png');
+
+    // 8 gajos:
+    // "Premio dificil" lleva el color especial (oro champán metálico)
+    // "Premio facil" y los medios llevan tonos azul zafiro y medianoche sobrios
     const segmentos = [
-      { label: 'Premio dificil', peso: 2,  color: '#f4b400', textoColor: '#1b365d', especial: true },
-      { label: 'premio m1',      peso: 12, color: '#1b365d', textoColor: '#ffffff', especial: false },
-      { label: 'premio m2',      peso: 12, color: '#2b548e', textoColor: '#ffffff', especial: false },
-      { label: 'Premio facil',   peso: 26, color: '#1b365d', textoColor: '#ffffff', especial: false },
-      { label: 'premio m3',      peso: 12, color: '#2b548e', textoColor: '#ffffff', especial: false },
-      { label: 'premio m4',      peso: 12, color: '#1b365d', textoColor: '#ffffff', especial: false },
-      { label: 'premio m5',      peso: 12, color: '#2b548e', textoColor: '#ffffff', especial: false },
-      { label: 'premio m6',      peso: 12, color: '#1b365d', textoColor: '#ffffff', especial: false }
+      { label: 'Premio dificil', peso: 2,  color1: '#f5df96', color2: '#b8891e', textoColor: '#091326', especial: true },
+      { label: 'premio m1',      peso: 12, color1: '#162b4d', color2: '#0d1b33', textoColor: '#f5f0e6', especial: false },
+      { label: 'premio m2',      peso: 12, color1: '#1e3a66', color2: '#132645', textoColor: '#f5f0e6', especial: false },
+      { label: 'Premio facil',   peso: 26, color1: '#162b4d', color2: '#0d1b33', textoColor: '#f5f0e6', especial: false },
+      { label: 'premio m3',      peso: 12, color1: '#1e3a66', color2: '#132645', textoColor: '#f5f0e6', especial: false },
+      { label: 'premio m4',      peso: 12, color1: '#162b4d', color2: '#0d1b33', textoColor: '#f5f0e6', especial: false },
+      { label: 'premio m5',      peso: 12, color1: '#1e3a66', color2: '#132645', textoColor: '#f5f0e6', especial: false },
+      { label: 'premio m6',      peso: 12, color1: '#162b4d', color2: '#0d1b33', textoColor: '#f5f0e6', especial: false }
     ];
 
     const totalGajos = segmentos.length;
     const arcoGajo = (2 * Math.PI) / totalGajos;
-    let anguloActual = 0; // En radianes
+    let anguloActual = 0;
     let girando = false;
 
-    // Dibujar la ruleta completa
     function dibujarRuleta() {
       const centroX = canvas.width / 2;
       const centroY = canvas.height / 2;
@@ -281,27 +393,21 @@
         const anguloFin = anguloInicio + arcoGajo;
         const seg = segmentos[i];
 
-        // Gajo
+        // Gajo con degradado radial sutil para profundidad
         ctx.beginPath();
         ctx.moveTo(centroX, centroY);
         ctx.arc(centroX, centroY, radio, anguloInicio, anguloFin);
         ctx.closePath();
 
-        if (seg.especial) {
-          // Degradado dorado especial para el Premio difícil
-          const grad = ctx.createRadialGradient(centroX, centroY, 30, centroX, centroY, radio);
-          grad.addColorStop(0, '#ffe066');
-          grad.addColorStop(0.6, '#f4b400');
-          grad.addColorStop(1, '#d48806');
-          ctx.fillStyle = grad;
-        } else {
-          ctx.fillStyle = seg.color;
-        }
+        const grad = ctx.createRadialGradient(centroX, centroY, 45, centroX, centroY, radio);
+        grad.addColorStop(0, seg.color1);
+        grad.addColorStop(1, seg.color2);
+        ctx.fillStyle = grad;
         ctx.fill();
 
-        // Línea divisoria entre gajos
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#ffffff';
+        // Línea divisoria dorada fina
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.55)';
         ctx.stroke();
 
         // Texto del premio
@@ -310,13 +416,29 @@
         ctx.rotate(anguloInicio + arcoGajo / 2);
         ctx.textAlign = 'right';
         ctx.fillStyle = seg.textoColor;
-        ctx.font = seg.especial ? '800 20px Montserrat, sans-serif' : '700 18px Montserrat, sans-serif';
-        ctx.fillText(seg.label, radio - 28, 7);
+        ctx.font = seg.especial
+          ? '700 22px Montserrat, sans-serif'
+          : '500 20px Montserrat, sans-serif';
+        ctx.fillText(seg.label, radio - 38, 7);
         ctx.restore();
+      }
+
+      // Pines metálicos dorados en cada divisor del borde exterior
+      for (let i = 0; i < totalGajos; i++) {
+        const anguloPin = anguloActual + i * arcoGajo;
+        const pinX = centroX + Math.cos(anguloPin) * (radio - 14);
+        const pinY = centroY + Math.sin(anguloPin) * (radio - 14);
+
+        ctx.beginPath();
+        ctx.arc(pinX, pinY, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#f6e29c';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#7d5c0c';
+        ctx.stroke();
       }
     }
 
-    // Selección ponderada según probabilidad
     function elegirIndiceGanador() {
       const sumaPesos = segmentos.reduce((acc, s) => acc + s.peso, 0);
       let random = Math.random() * sumaPesos;
@@ -327,7 +449,6 @@
       return 0;
     }
 
-    // Animación de giro hacia el centro superior (3 * Math.PI / 2 = 270° = arriba)
     function girarRuleta() {
       if (girando) return;
       girando = true;
@@ -335,17 +456,13 @@
 
       const indiceGanador = elegirIndiceGanador();
 
-      // El puntero está en el centro arriba: 270 grados = 1.5 * Math.PI radianes
+      // El punto ganador es el centro arriba (270° = 1.5 * Math.PI)
       const anguloPunteroArriba = 1.5 * Math.PI;
-
-      // Centro del gajo ganador cuando anguloActual = 0
       const centroGajo = indiceGanador * arcoGajo + arcoGajo / 2;
 
-      // Rotación exacta necesaria para alinear el centro del gajo ganador con 1.5 * Math.PI
       let anguloDestino = (anguloPunteroArriba - centroGajo) % (2 * Math.PI);
       if (anguloDestino < 0) anguloDestino += 2 * Math.PI;
 
-      // Diferencia desde la posición actual + 6 vueltas completas
       const vueltasExtra = 6 * 2 * Math.PI;
       const actualNormalizado = ((anguloActual % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
       let delta = anguloDestino - actualNormalizado;
@@ -353,28 +470,25 @@
 
       const rotacionTotal = vueltasExtra + delta;
       const anguloInicial = anguloActual;
-      const duracion = 4500; // 4.5 segundos de giro
+      const duracion = 4800;
       const inicioTiempo = performance.now();
       let ultimoGajoSonado = -1;
 
       function animar(ahora) {
         const transcurrido = ahora - inicioTiempo;
         const progreso = Math.min(transcurrido / duracion, 1);
-
-        // Curva suave de desaceleración (easeOutQuart)
         const ease = 1 - Math.pow(1 - progreso, 4);
         anguloActual = anguloInicial + rotacionTotal * ease;
 
         dibujarRuleta();
 
-        // Efecto visual en el ala cuando cruza cada divisor arriba
         const indiceBajoPuntero = Math.floor(
           (((anguloPunteroArriba - anguloActual) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / arcoGajo
         );
         if (indiceBajoPuntero !== ultimoGajoSonado) {
           ultimoGajoSonado = indiceBajoPuntero;
           howieAla.classList.add('tick');
-          setTimeout(() => howieAla.classList.remove('tick'), 70);
+          setTimeout(() => howieAla.classList.remove('tick'), 75);
         }
 
         if (progreso < 1) {
@@ -383,7 +497,7 @@
           anguloActual = anguloInicial + rotacionTotal;
           dibujarRuleta();
 
-          // Pausa de 1 segundo mirando el premio ganador arriba antes de abrir el popup
+          // Pausa de 1 segundo sobre el premio ganador antes de mostrar la tarjeta
           setTimeout(() => {
             textoPremioGanado.textContent = segmentos[indiceGanador].label;
             modalPremio.classList.add('activo');
@@ -395,7 +509,6 @@
       requestAnimationFrame(animar);
     }
 
-    // Reiniciar para volver a jugar
     function reiniciarRuleta() {
       modalPremio.classList.remove('activo');
       btnGirar.disabled = false;
@@ -404,9 +517,7 @@
     btnGirar.addEventListener('click', girarRuleta);
     btnReiniciar.addEventListener('click', reiniciarRuleta);
 
-    // Dibujo inicial
     dibujarRuleta();
   </script>
 </body>
-</html>
 </html>
