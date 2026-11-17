@@ -92,17 +92,6 @@
       align-items: center;
     }
 
-    /* Relleno blanco detrás de los ojos por si el PNG quedó transparente en esa zona */
-    .howie-fondo-ojos {
-      position: absolute;
-      top: 32%;
-      width: 58%;
-      height: 28%;
-      background: #ffffff;
-      border-radius: 50%;
-      z-index: 1;
-    }
-
     .howie-cuerpo {
       position: relative;
       width: 100%;
@@ -151,7 +140,7 @@
     /* Ala de Howie ajustada a 200px */
     .howie-ala {
       position: absolute;
-      top: -55px;
+      top: -70px;
       left: 50%;
       transform: translateX(-50%);
       width: 200px;
@@ -326,9 +315,8 @@
 
   <div class="escenario-ruleta">
     <div class="ruleta-wrapper">
-      <!-- Cuerpo de Howie con respaldo blanco en ojos -->
+      
       <div class="howie-contenedor">
-        <div class="howie-fondo-ojos"></div>
         <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
       </div>
 
