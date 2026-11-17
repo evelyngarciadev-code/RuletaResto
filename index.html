@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Ruleta Exclusiva - Restó Howard Johnson</title>
+  <!-- Tipografías Elegantes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <!-- Confeti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --azul-noche: #07111e;
+      --azul-medio: #0f233c;
+      --dorado: #d4af37;
+      --dorado-claro: #f3e5ab;
+      --crema: #fdfbf7;
+      --texto-oscuro: #162232;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--azul-medio) 0%, var(--azul-noche) 100%);
+      color: var(--crema);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Marco sutil elegante */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 14px;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Botón discreto de pantalla completa */
+    #btn-fullscreen {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--dorado-claro);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 50;
+      transition: all 0.2s;
+    }
+    #btn-fullscreen:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+
+    /* Encabezado */
+    .header-resto {
+      text-align: center;
+      margin-bottom: 18px;
+      z-index: 5;
+    }
+    .subtitulo-hotel {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--dorado);
+      margin-bottom: 4px;
+    }
+    .titulo-principal {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--crema);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Contenedor Ruleta + Howie */
+    .ruleta-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0 24px 0;
+      z-index: 10;
+    }
+
+    .ruleta-wrapper {
+      position: relative;
+      width: 330px;
+      height: 330px;
+      border-radius: 50%;
+      padding: 10px;
+      background: linear-gradient(145deg, #f3e5ab, #b8860b);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(212, 175, 55, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#ruletaCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: block;
+    }
+
+    /* Botón central dorado */
+    #btn-girar {
+      position: absolute;
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a3352 0%, #091526 100%);
+      border: 3px solid var(--dorado);
+      color: var(--dorado-claro);
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(212, 175, 55, 0.4);
+      z-index: 15;
+      transition: transform 0.15s ease;
+    }
+    #btn-girar:active {
+      transform: scale(0.93);
+    }
+    #btn-girar:disabled {
+      cursor: default;
+      opacity: 0.9;
+    }
+
+    /* Howie asomado + Ala como palito de frenado */
+    .howie-box {
+      position: absolute;
+      right: -82px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 120px;
+      height: 160px;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .howie-cuerpo {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 105px;
+      height: auto;
+      filter: drop-shadow(-4px 6px 10px rgba(0,0,0,0.6));
+      z-index: 20;
+    }
+
+    /* El ala se apoya sobre el borde derecho de la ruleta (a las 3 en punto) */
+    .howie-ala {
+      position: absolute;
+      left: -18px;
+      top: 54px;
+      width: 62px;
+      height: auto;
+      transform-origin: 85% 35%; /* Punto de pivote cerca del hombro */
+      transform: rotate(0deg);
+      filter: drop-shadow(-2px 4px 6px rgba(0,0,0,0.6));
+      z-index: 25;
+      transition: transform 0.06s ease-out;
+    }
+
+    /* Botón inferior principal */
+    .btn-accion {
+      background: linear-gradient(135deg, #d4af37 0%, #aa8020 100%);
+      color: #07111e;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+      z-index: 10;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-accion:active {
+      transform: scale(0.96);
+    }
+    .btn-accion:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Pantallas Overlays (Inicio y Premio) */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 12, 22, 0.92);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+    .overlay.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tarjeta-modal {
+      background: linear-gradient(180deg, #10243e 0%, #091526 100%);
+      border: 2px solid var(--dorado);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 390px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(212, 175, 55, 0.2);
+      transform: scale(1);
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .overlay.oculto .tarjeta-modal {
+      transform: scale(0.85);
+    }
+
+    .ornamento {
+      color: var(--dorado);
+      font-size: 18px;
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tarjeta-modal h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: var(--dorado-claro);
+      margin-bottom: 12px;
+    }
+
+    .tarjeta-modal p {
+      font-size: 14px;
+      color: #d0d8e2;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .premio-destacado {
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px dashed var(--dorado);
+      border-radius: 12px;
+      padding: 18px 14px;
+      margin: 16px 0 24px 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Adaptación a tablets / pantallas grandes */
+    @media (min-width: 600px) {
+      .ruleta-wrapper {
+        width: 410px;
+        height: 410px;
+      }
+      .titulo-principal {
+        font-size: 36px;
+      }
+      .howie-box {
+        right: -98px;
+        width: 145px;
+        height: 190px;
+      }
+      .howie-cuerpo {
+        width: 130px;
+      }
+      .howie-ala {
+        left: -22px;
+        top: 66px;
+        width: 74px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button id="btn-fullscreen" onclick="toggleFullscreen()">⛶ Pantalla completa</button>
+
+  <!-- PANTALLA DE INICIO -->
+  <div id="pantalla-inicio" class="overlay">
+    <div class="tarjeta-modal">
+      <div class="ornamento">✦ ✦ ✦</div>
+      <div class="subtitulo-hotel">Howard Johnson Restó</div>
+      <h2>Cortesía de la Casa</h2>
+      <p>Girá nuestra ruleta exclusiva y descubrí el obsequio especial que tenemos preparado para tu velada.</p>
+      <button class="btn-accion" onclick="comenzarExperiencia()">Tocar para comenzar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA PRINCIPAL DE LA RULETA -->
+  <div class="header-resto">
+    <div class="subtitulo-hotel">Howard Johnson Restó</div>
+    <h1 class="titulo-principal">Ruleta de Obsequios</h1>
+  </div>
+
+  <div class="ruleta-stage">
+    <div class="ruleta-wrapper">
+      <canvas id="ruletaCanvas" width="500" height="500"></canvas>
+      <button id="btn-girar" onclick="girarRuleta()">GIRAR</button>
+    </div>
+
+    <!-- Howie asomado con su ala como puntero/freno -->
+    <div class="howie-box">
+      <img src="img/hc.png" alt="Howie" class="howie-cuerpo">
+      <img src="img/ha.png" alt="Ala de Howie" id="howieAla" class="howie-ala">
+    </div>
+  </div>
+
+  <button id="btn-girar-inferior" class="btn-accion" onclick="girarRuleta()">Girar Ruleta</button>
+
+  <!-- TARJETA FINAL DE PREMIO -->
+  <div id="pantalla-premio" class="overlay oculto">
+    <div class="tarjeta-modal">
+      <div class="ornamento">✦ ✦ ✦</div>
+      <h2>¡Felicitaciones!</h2>
+      <p style="margin-bottom: 6px;">Ganaste:</p>
+      <div class="premio-destacado" id="texto-premio-ganado">Premio</div>
+      <p style="font-size: 12px; color: var(--dorado-claro);">Mostrá esta pantalla a nuestro equipo para disfrutar tu cortesía.</p>
+      <button class="btn-accion" onclick="reiniciarRuleta()">OK / Reiniciar</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. CONFIGURACIÓN DE PREMIOS Y PROBABILIDADES (PESOS)
+       ========================================================= */
+    // La suma de los pesos es 100 (2 + 11*6 + 32 = 100%)
+    const casilleros = [
+      { texto: "Premio difícil", peso: 2,  color: "#1a2f4b", textoColor: "#f3e5ab" }, // Difícil (2%)
+      { texto: "Premio m1",      peso: 11, color: "#fdfbf7", textoColor: "#0c1b2e" }, // Medio
+      { texto: "Premio m2",      peso: 11, color: "#0e1f36", textoColor: "#f3e5ab" }, // Medio
+      { texto: "Premio m3",      peso: 11, color: "#f4efe4", textoColor: "#0c1b2e" }, // Medio
+      { texto: "Premio fácil",   peso: 32, color: "#b8860b", textoColor: "#ffffff" }, // Más fácil (32%)
+      { texto: "Premio m4",      peso: 11, color: "#fdfbf7", textoColor: "#0c1b2e" }, // Medio
+      { texto: "Premio m5",      peso: 11, color: "#0e1f36", textoColor: "#f3e5ab" }, // Medio
+      { texto: "Premio m6",      peso: 11, color: "#f4efe4", textoColor: "#0c1b2e" }  // Medio
+    ];
+
+    const canvas = document.getElementById("ruletaCanvas");
+    const ctx = canvas.getContext("2d");
+    const alaEl = document.getElementById("howieAla");
+
+    const numCasilleros = casilleros.length;
+    const arc = (2 * Math.PI) / numCasilleros;
+
+    let anguloActual = 0; // En radianes
+    let girando = false;
+    let ultimoIndiceClavija = -1;
+
+    /* =========================================================
+       2. AUDIO SINTETIZADO (TIC DE CLAVIJA Y FANFARRIA)
+       ========================================================= */
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function tocarTic() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.045);
+
+      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.045);
+    }
+
+    function tocarVictoria() {
+      if (!audioCtx) return;
+      const notas = [523.25, 659.25, 783.99, 1046.50]; // Do - Mi - Sol - Do alto
+      notas.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const inicio = audioCtx.currentTime + idx * 0.11;
+        osc.frequency.setValueAtTime(freq, inicio);
+
+        gain.gain.setValueAtTime(0.2, inicio);
+        gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.45);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(inicio);
+        osc.stop(inicio + 0.45);
+      });
+    }
+
+    /* =========================================================
+       3. DIBUJO DE LA RULETA SOFISTICADA
+       ========================================================= */
+    function dibujarRuleta() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radio = cx - 8;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < numCasilleros; i++) {
+        const anguloInicio = anguloActual + i * arc;
+        const anguloFin = anguloInicio + arc;
+
+        // Sector
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radio, anguloInicio, anguloFin);
+        ctx.closePath();
+        ctx.fillStyle = casilleros[i].color;
+        ctx.fill();
+
+        // Línea divisoria dorada fina
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#d4af37";
+        ctx.stroke();
+
+        // Texto del premio
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(anguloInicio + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = casilleros[i].textoColor;
+        ctx.font = "600 18px 'Montserrat', sans-serif";
+        ctx.fillText(casilleros[i].texto, radio - 32, 6);
+        ctx.restore();
+
+        // Clavija dorada en cada unión (donde golpea el ala de Howie)
+        const pinX = cx + Math.cos(anguloInicio) * (radio - 6);
+        const pinY = cy + Math.sin(anguloInicio) * (radio - 6);
+        ctx.beginPath();
+        ctx.arc(pinX, pinY, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#f3e5ab";
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "#5c4308";
+        ctx.stroke();
+      }
+
+      // Aro interior decorativo
+      ctx.beginPath();
+      ctx.arc(cx, cy, 48, 0, 2 * Math.PI);
+      ctx.fillStyle = "#d4af37";
+      ctx.fill();
+    }
+
+    /* =========================================================
+       4. LÓGICA DE PROBABILIDADES Y GIRO
+       ========================================================= */
+    function elegirPremioPonderado() {
+      const totalPeso = casilleros.reduce((acc, item) => acc + item.peso, 0);
+      let random = Math.random() * totalPeso;
+
+      for (let i = 0; i < casilleros.length; i++) {
+        if (random < casilleros[i].peso) {
+          return i;
+        }
+        random -= casilleros[i].peso;
+      }
+      return 0;
+    }
+
+    function girarRuleta() {
+      if (girando) return;
+      initAudio();
+      girando = true;
+
+      document.getElementById("btn-girar").disabled = true;
+      document.getElementById("btn-girar-inferior").disabled = true;
+
+      // 1. Elegimos el ganador según los pesos configurados
+      const indiceGanador = elegirPremioPonderado();
+
+      // 2. El ala de Howie está a la derecha (ángulo 0 radianes en Canvas)
+      // Calculamos el ángulo exacto para que el centro del casillero ganador quede en 0 rad
+      const centroSectorGanador = indiceGanador * arc + arc / 2;
+      // Agregamos un pequeño margen aleatorio dentro del sector para que sea natural (sin tocar bordes)
+      const variacionInterna = (Math.random() - 0.5) * (arc * 0.55);
+
+      const anguloDestinoNormalizado = (2 * Math.PI - (centroSectorGanador + variacionInterna)) % (2 * Math.PI);
+      const vueltasExtra = (6 + Math.floor(Math.random() * 3)) * 2 * Math.PI; // 6 a 8 vueltas completas
+
+      const anguloInicial = anguloActual % (2 * Math.PI);
+      let delta = anguloDestinoNormalizado - anguloInicial;
+      if (delta < 0) delta += 2 * Math.PI;
+
+      const anguloFinal = anguloActual + vueltasExtra + delta;
+      const duracion = 5200; // 5.2 segundos de giro suave
+      const tiempoInicio = performance.now();
+
+      function animarGiro(ahora) {
+        const transcurrido = ahora - tiempoInicio;
+        const progreso = Math.min(transcurrido / duracion, 1);
+
+        // Curva easeOutQuart (frenado elegante y progresivo)
+        const ease = 1 - Math.pow(1 - progreso, 4);
+        anguloActual = anguloInicial + (anguloFinal - anguloInicial) * ease;
+
+        dibujarRuleta();
+        verificarGolpeAla(progreso);
+
+        if (progreso < 1) {
+          requestAnimationFrame(animarGiro);
+        } else {
+          // Detenido por completo
+          alaEl.style.transform = "rotate(0deg)";
+          tocarVictoria();
+
+          // Pausa de 1 segundo para que se vea dónde quedó el premio antes de la tarjeta
+          setTimeout(() => {
+            mostrarTarjetaPremio(casilleros[indiceGanador].texto);
+          }, 1000);
+        }
+      }
+
+      requestAnimationFrame(animarGiro);
+    }
+
+    // Simula el rebote del ala de Howie cada vez que pasa una clavija por el punto 0 (derecha)
+    function verificarGolpeAla(progreso) {
+      const anguloNormalizado = ((anguloActual % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const indiceClavijaActual = Math.floor(anguloNormalizado / arc);
+
+      if (indiceClavijaActual !== ultimoIndiceClavija) {
+        ultimoIndiceClavija = indiceClavijaActual;
+        tocarTic();
+
+        // Golpe hacia abajo del ala como palito de frenado
+        const intensidad = progreso > 0.85 ? -14 : -22;
+        alaEl.style.transform = `rotate(${intensidad}deg)`;
+        setTimeout(() => {
+          if (girando) alaEl.style.transform = "rotate(0deg)";
+        }, 70);
+      }
+    }
+
+    /* =========================================================
+       5. PANTALLAS, CONFETI Y PANTALLA COMPLETA
+       ========================================================= */
+    function comenzarExperiencia() {
+      initAudio();
+      document.getElementById("pantalla-inicio").classList.add("oculto");
+      activarFullscreen();
+    }
+
+    function mostrarTarjetaPremio(nombrePremio) {
+      document.getElementById("texto-premio-ganado").innerText = nombrePremio;
+      document.getElementById("pantalla-premio").classList.remove("oculto");
+
+      // Confeti en tonos dorados, blanco y azul noche
+      confetti({
+        particleCount: 110,
+        spread: 75,
+        origin: { y: 0.6 },
+        colors: ['#d4af37', '#f3e5ab', '#ffffff', '#1a3352']
+      });
+    }
+
+    function reiniciarRuleta() {
+      document.getElementById("pantalla-premio").classList.add("oculto");
+      girando = false;
+      document.getElementById("btn-girar").disabled = false;
+      document.getElementById("btn-girar-inferior").disabled = false;
+    }
+
+    function activarFullscreen() {
+      const elem = document.documentElement;
+      if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        activarFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }
+
+    // Dibujo inicial
+    dibujarRuleta();
+  </script>
+</body>
+</html>
