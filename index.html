@@ -37,7 +37,6 @@
       padding: 24px 16px;
     }
 
-    /* Encabezado sutil y elegante */
     .header-marca {
       text-align: center;
       margin-bottom: 18px;
@@ -62,13 +61,12 @@
       letter-spacing: 3px;
     }
 
-    /* Contenedor general con espacio arriba garantizado para Howie */
     .escenario-ruleta {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 135px; /* Aire superior para que Howie siempre sea visible */
+      padding-top: 145px;
     }
 
     .ruleta-wrapper {
@@ -80,16 +78,36 @@
       justify-content: center;
     }
 
-    /* Cuerpo de Howie asomándose desde atrás arriba */
-    .howie-cuerpo {
+    /* Contenedor de Howie arriba detrás de la ruleta */
+    .howie-contenedor {
       position: absolute;
-      bottom: calc(100% - 38px); /* Se apoya justo detrás del borde superior de la ruleta */
+      bottom: calc(100% - 38px);
       left: 50%;
       transform: translateX(-50%);
       width: 210px;
-      height: auto;
-      z-index: 1; /* Detrás de la ruleta */
+      z-index: 1;
       pointer-events: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Relleno blanco detrás de los ojos por si el PNG quedó transparente en esa zona */
+    .howie-fondo-ojos {
+      position: absolute;
+      top: 32%;
+      width: 58%;
+      height: 28%;
+      background: #ffffff;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .howie-cuerpo {
+      position: relative;
+      width: 100%;
+      height: auto;
+      z-index: 2;
       filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
     }
 
@@ -105,13 +123,12 @@
         0 20px 50px rgba(0, 0, 0, 0.75),
         0 0 35px rgba(212, 175, 55, 0.2),
         inset 0 2px 4px rgba(255, 255, 255, 0.6);
-      z-index: 2; /* Por delante del torso inferior de Howie */
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Aro interior oscuro de contraste */
     .bisel-interior {
       width: 100%;
       height: 100%;
@@ -131,15 +148,16 @@
       display: block;
     }
 
-    /* Ala de Howie por delante arriba actuando como puntero */
+    /* Ala de Howie ajustada a 200px */
     .howie-ala {
       position: absolute;
-      top: -35px;
+      top: -55px;
       left: 50%;
       transform: translateX(-50%);
       width: 200px;
+      max-width: none;
       height: auto;
-      z-index: 4; /* Siempre visible por delante del bisel superior */
+      z-index: 4;
       pointer-events: none;
       filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.65));
       transform-origin: top center;
@@ -147,10 +165,9 @@
     }
 
     .howie-ala.tick {
-      transform: translateX(-50%) rotate(-12deg);
+      transform: translateX(-50%) rotate(-10deg);
     }
 
-    /* Medallón central para girar */
     .btn-girar {
       position: absolute;
       z-index: 5;
@@ -187,7 +204,6 @@
       cursor: not-allowed;
     }
 
-    /* Tarjeta emergente sofisticada */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -284,19 +300,19 @@
 
     @media (max-width: 420px) {
       .escenario-ruleta {
-        padding-top: 115px;
+        padding-top: 125px;
       }
       .ruleta-wrapper {
         width: 305px;
         height: 305px;
       }
-      .howie-cuerpo {
+      .howie-contenedor {
         width: 180px;
         bottom: calc(100% - 32px);
       }
       .howie-ala {
-        width: 62px;
-        top: -22px;
+        width: 170px;
+        top: -46px;
       }
     }
   </style>
@@ -310,17 +326,20 @@
 
   <div class="escenario-ruleta">
     <div class="ruleta-wrapper">
-      <!-- Cuerpo de Howie asomado desde atrás arriba -->
-      <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
+      <!-- Cuerpo de Howie con respaldo blanco en ojos -->
+      <div class="howie-contenedor">
+        <div class="howie-fondo-ojos"></div>
+        <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
+      </div>
 
-      <!-- Bisel dorado elegante + Canvas de ruleta -->
+      <!-- Bisel dorado + Canvas de ruleta -->
       <div class="bisel-exterior">
         <div class="bisel-interior">
           <canvas id="ruleta" width="600" height="600"></canvas>
         </div>
       </div>
 
-      <!-- Ala de Howie por delante arriba marcando el ganador -->
+      <!-- Ala de Howie -->
       <img src="ha.png" alt="Puntero Howie" class="howie-ala" id="howieAla">
 
       <!-- Botón central -->
@@ -348,7 +367,6 @@
     const textoPremioGanado = document.getElementById('textoPremioGanado');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
-    // Respaldo automático de rutas por si las imágenes están en subcarpetas (img/ o assets/)
     function configurarRutaImagen(imgEl, nombreArchivo) {
       const rutas = [nombreArchivo, `img/${nombreArchivo}`, `assets/${nombreArchivo}`, `images/${nombreArchivo}`];
       let intento = 0;
@@ -362,9 +380,6 @@
     configurarRutaImagen(howieCuerpo, 'hc.png');
     configurarRutaImagen(howieAla, 'ha.png');
 
-    // 8 gajos:
-    // "Premio dificil" lleva el color especial (oro champán metálico)
-    // "Premio facil" y los medios llevan tonos azul zafiro y medianoche sobrios
     const segmentos = [
       { label: 'Premio dificil', peso: 2,  color1: '#f5df96', color2: '#b8891e', textoColor: '#091326', especial: true },
       { label: 'premio m1',      peso: 12, color1: '#162b4d', color2: '#0d1b33', textoColor: '#f5f0e6', especial: false },
@@ -393,7 +408,6 @@
         const anguloFin = anguloInicio + arcoGajo;
         const seg = segmentos[i];
 
-        // Gajo con degradado radial sutil para profundidad
         ctx.beginPath();
         ctx.moveTo(centroX, centroY);
         ctx.arc(centroX, centroY, radio, anguloInicio, anguloFin);
@@ -405,12 +419,10 @@
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // Línea divisoria dorada fina
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'rgba(212, 175, 55, 0.55)';
         ctx.stroke();
 
-        // Texto del premio
         ctx.save();
         ctx.translate(centroX, centroY);
         ctx.rotate(anguloInicio + arcoGajo / 2);
@@ -423,7 +435,6 @@
         ctx.restore();
       }
 
-      // Pines metálicos dorados en cada divisor del borde exterior
       for (let i = 0; i < totalGajos; i++) {
         const anguloPin = anguloActual + i * arcoGajo;
         const pinX = centroX + Math.cos(anguloPin) * (radio - 14);
@@ -455,8 +466,6 @@
       btnGirar.disabled = true;
 
       const indiceGanador = elegirIndiceGanador();
-
-      // El punto ganador es el centro arriba (270° = 1.5 * Math.PI)
       const anguloPunteroArriba = 1.5 * Math.PI;
       const centroGajo = indiceGanador * arcoGajo + arcoGajo / 2;
 
@@ -497,7 +506,6 @@
           anguloActual = anguloInicial + rotacionTotal;
           dibujarRuleta();
 
-          // Pausa de 1 segundo sobre el premio ganador antes de mostrar la tarjeta
           setTimeout(() => {
             textoPremioGanado.textContent = segmentos[indiceGanador].label;
             modalPremio.classList.add('activo');
