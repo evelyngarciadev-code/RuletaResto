@@ -12,7 +12,7 @@
          ========================================================= */
       --ala-ancho: 300px;        /* Tamaño del ala */
       --ala-arriba: -170px;       /* Más negativo = sube / Menos negativo = baja */
-      --ala-horizontal: -48%;    /* -50% es centro exacto (-45% derecha / -55% izquierda) */
+      --ala-horizontal: -50%;    /* -50% es centro exacto (-45% derecha / -55% izquierda) */
 
       --howie-ancho: 310px;      /* Tamaño del cuerpo de Howie atrás */
       --howie-arriba: -52px;     /* Qué tanto se asoma detrás de la ruleta */
@@ -161,11 +161,11 @@
       pointer-events: none;
       filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.65));
       transform-origin: top center;
-      transition: transform 0.08s ease-out;
+      transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .howie-ala.tick {
-      transform: translateX(var(--ala-horizontal)) rotate(-10deg);
+      transform: translateX(var(--ala-horizontal)) rotate(-2deg);
     }
 
     .btn-girar {
