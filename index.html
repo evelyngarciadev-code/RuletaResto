@@ -363,66 +363,78 @@
     let audioCtx = null;
 
     function activarAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch (e) {}
     }
 
     function sonarTicRuleta() {
-      activarAudio();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(520, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.045);
-
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.045);
-    }
-
-    function sonarGanador() {
-      activarAudio();
-      const notas = [523.25, 659.25, 783.99, 1046.50];
-      notas.forEach((freq, i) => {
+      try {
+        activarAudio();
+        if (!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        const inicio = audioCtx.currentTime + i * 0.11;
-        osc.frequency.setValueAtTime(freq, inicio);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.045);
 
-        gain.gain.setValueAtTime(0.22, inicio);
-        gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.5);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(inicio);
-        osc.stop(inicio + 0.5);
-      });
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.045);
+      } catch (e) {}
+    }
+
+    function sonarGanador() {
+      try {
+        activarAudio();
+        if (!audioCtx) return;
+        const notas = [523.25, 659.25, 783.99, 1046.50];
+        notas.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          const inicio = audioCtx.currentTime + i * 0.11;
+          osc.frequency.setValueAtTime(freq, inicio);
+
+          gain.gain.setValueAtTime(0.22, inicio);
+          gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.5);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(inicio);
+          osc.stop(inicio + 0.5);
+        });
+      } catch (e) {}
     }
 
     function lanzarConfetiGanador() {
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 120,
-          spread: 75,
-          origin: { y: 0.6 },
-          colors: ['#f6e29c', '#ea8b38', '#ffffff', '#1c3561']
-        });
-      }
+      try {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 120,
+            spread: 75,
+            origin: { y: 0.6 },
+            colors: ['#f6e29c', '#ea8b38', '#ffffff', '#1c3561']
+          });
+        }
+      } catch (e) {}
     }
 
     function limpiarConfeti() {
-      if (typeof confetti !== 'undefined' && confetti.reset) {
-        confetti.reset();
-      }
+      try {
+        if (typeof confetti !== 'undefined' && confetti.reset) {
+          confetti.reset();
+        }
+      } catch (e) {}
     }
     /* ------------------------- */
 
@@ -497,7 +509,7 @@
       for (let i = 0; i < totalGajos; i++) {
         const anguloPin = anguloActual + i * arcoGajo;
         const pinX = centroX + Math.cos(anguloPin) * (radio - 14);
-        const pinY = cy = centroY + Math.sin(anguloPin) * (radio - 14);
+        const pinY = centroY + Math.sin(anguloPin) * (radio - 14);
 
         ctx.beginPath();
         ctx.arc(pinX, pinY, 5, 0, 2 * Math.PI);
@@ -544,7 +556,7 @@
       let ultimoGajoSonado = -1;
 
       function animar(ahora) {
-        const transcurrido = ahora - tiempoInicio;
+        const transcurrido = ahora - inicioTiempo;
         const progreso = Math.min(transcurrido / duracion, 1);
         const ease = 1 - Math.pow(1 - progreso, 4);
         anguloActual = anguloInicial + rotacionTotal * ease;
