@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruleta de Premios | Howard Johnson Plaza Villa Carlos Paz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Experiencia Gastronómica | Howard Johnson Plaza Villa Carlos Paz</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     :root {
       /* =========================================================
-         CONTROLES RÁPIDOS DE HOWIE (Modificá solo estos valores)
+         CONTROLES RÁPIDOS DE HOWIE (Tus medidas exactas)
          ========================================================= */
       --ala-ancho: 300px;        /* Tamaño del ala */
-      --ala-arriba: -169px;       /* Más negativo = sube / Menos negativo = baja */
+      --ala-arriba: -169px;      /* Más negativo = sube / Menos negativo = baja */
       --ala-horizontal: -50%;    /* -50% es centro exacto (-45% derecha / -55% izquierda) */
 
       --howie-ancho: 310px;      /* Tamaño del cuerpo de Howie atrás */
@@ -32,6 +32,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -73,12 +74,197 @@
       letter-spacing: 3px;
     }
 
+    .seccion-oculta {
+      display: none !important;
+    }
+
+    /* ================= TARJETAS DE ENCUESTA (PASOS 1 Y 2) ================= */
+    .contenedor-encuesta {
+      width: 100%;
+      max-width: 430px;
+      z-index: 10;
+    }
+
+    .card-elegante {
+      background: linear-gradient(165deg, #132647 0%, #091326 100%);
+      border: 1.5px solid rgba(212, 175, 55, 0.55);
+      border-radius: 18px;
+      padding: 26px 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      animation: fadeIn 0.35s ease;
+    }
+
+    .paso-indicador {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .dot {
+      width: 30px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      transition: background 0.3s;
+    }
+
+    .dot.activo {
+      background: var(--gold-light);
+    }
+
+    .card-titulo {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      text-align: center;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .intro-texto {
+      text-align: center;
+      font-size: 13px;
+      color: #d6dde8;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .campo-grupo {
+      margin-bottom: 14px;
+    }
+
+    .campo-grupo label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+
+    .campo-grupo input,
+    .campo-grupo textarea {
+      width: 100%;
+      background: rgba(7, 15, 30, 0.75);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .campo-grupo input:focus,
+    .campo-grupo textarea:focus {
+      border-color: var(--gold-light);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.85) sepia(1) saturate(2) hue-rotate(10deg);
+    }
+
+    /* Ítems de Estrellas */
+    .item-calificacion {
+      background: rgba(7, 15, 30, 0.55);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      border-radius: 12px;
+      padding: 11px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .item-titulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .estrellas-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .estrella {
+      font-size: 27px;
+      color: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: transform 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    .estrella.seleccionada {
+      color: #f6e29c;
+      text-shadow: 0 0 10px rgba(246, 226, 156, 0.55);
+    }
+
+    .estrella:active {
+      transform: scale(1.25);
+    }
+
+    .error-msg {
+      color: #ff8585;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .btn-dorado {
+      background: linear-gradient(135deg, #e5c465 0%, #b88d21 100%);
+      color: #091326;
+      border: none;
+      padding: 14px 28px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: all 0.2s ease;
+      width: 100%;
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.3);
+      margin-top: 6px;
+    }
+
+    .btn-dorado:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .btn-volver {
+      background: transparent;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--gold-light);
+      padding: 10px;
+      font-size: 11px;
+      margin-top: 10px;
+      box-shadow: none;
+    }
+
+    /* ================= ESCENARIO RULETA (PASO 3 - TU DISEÑO EXACTO) ================= */
     .escenario-ruleta {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding-top: 150px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .saludo-ruleta {
+      font-size: 13px;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: 0.5px;
     }
 
     .ruleta-wrapper {
@@ -90,7 +276,6 @@
       justify-content: center;
     }
 
-    /* Cuerpo de Howie arriba detrás de la ruleta */
     .howie-contenedor {
       position: absolute;
       bottom: calc(100% + var(--howie-arriba));
@@ -112,7 +297,6 @@
       filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
     }
 
-    /* Bisel exterior metálico dorado de lujo */
     .bisel-exterior {
       position: relative;
       width: 100%;
@@ -149,7 +333,6 @@
       display: block;
     }
 
-    /* Ala de Howie controlada desde :root */
     .howie-ala {
       position: absolute;
       top: var(--ala-arriba);
@@ -205,10 +388,11 @@
       cursor: not-allowed;
     }
 
+    /* ================= MODAL PREMIO + GOOGLE REVIEWS ================= */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(5, 11, 24, 0.85);
+      background: rgba(5, 11, 24, 0.88);
       backdrop-filter: blur(6px);
       display: none;
       align-items: center;
@@ -227,9 +411,9 @@
       background: linear-gradient(165deg, #132647 0%, #091326 100%);
       color: #ffffff;
       width: 100%;
-      max-width: 370px;
+      max-width: 380px;
       border-radius: 18px;
-      padding: 36px 28px;
+      padding: 32px 24px;
       text-align: center;
       border: 1.5px solid rgba(212, 175, 55, 0.65);
       box-shadow:
@@ -252,7 +436,7 @@
       font-size: 23px;
       font-weight: 700;
       color: #ffffff;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       letter-spacing: 1px;
     }
 
@@ -261,32 +445,53 @@
       font-weight: 600;
       color: var(--gold-light);
       background: rgba(255, 255, 255, 0.04);
-      padding: 18px 16px;
+      padding: 16px;
       border-radius: 12px;
-      margin-bottom: 26px;
+      margin-bottom: 14px;
       border: 1px solid rgba(212, 175, 55, 0.4);
       letter-spacing: 0.5px;
     }
 
-    .btn-reiniciar {
-      background: linear-gradient(135deg, #e5c465 0%, #b88d21 100%);
-      color: #091326;
-      border: none;
-      padding: 14px 28px;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 50px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      transition: all 0.2s ease;
-      width: 100%;
-      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.3);
+    .nota-canje {
+      font-size: 12px;
+      color: #cfd8e3;
+      margin-bottom: 16px;
     }
 
-    .btn-reiniciar:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.08);
+    /* Bloque condicional para reseña de Google (>= 4 estrellas) */
+    .caja-google {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(246, 226, 156, 0.35);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .caja-google p {
+      font-size: 12px;
+      color: #e8edf5;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .btn-google {
+      display: block;
+      width: 100%;
+      background: #ffffff;
+      color: #091326;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 12px 16px;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s;
+    }
+
+    .btn-google:hover {
+      transform: translateY(-1px);
     }
 
     @keyframes fadeIn {
@@ -317,39 +522,277 @@
     <h1>Villa Carlos Paz</h1>
   </div>
 
-  <div class="escenario-ruleta">
-    <div class="ruleta-wrapper">
-      <!-- Cuerpo de Howie -->
-      <div class="howie-contenedor">
-        <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
+  <!-- ================= PASO 1: DATOS DEL CLIENTE ================= -->
+  <div id="paso-1" class="contenedor-encuesta">
+    <div class="card-elegante">
+      <div class="paso-indicador">
+        <div class="dot activo"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <h2 class="card-titulo">Tu Experiencia en el Restó</h2>
+      <p class="intro-texto">Completá tus datos para calificar tu visita, recibir invitaciones exclusivas y girar nuestra ruleta de obsequios.</p>
+
+      <div class="campo-grupo">
+        <label>Nombre y Apellido *</label>
+        <input type="text" id="inp-nombre" placeholder="Ej: Sofía Martínez">
       </div>
 
-      <!-- Bisel dorado + Canvas de ruleta -->
-      <div class="bisel-exterior">
-        <div class="bisel-interior">
-          <canvas id="ruleta" width="600" height="600"></canvas>
-        </div>
+      <div class="campo-grupo">
+        <label>Fecha de Cumpleaños *</label>
+        <input type="date" id="inp-cumple">
       </div>
 
-      <!-- Ala de Howie -->
-      <img src="ha.png" alt="Puntero Howie" class="howie-ala" id="howieAla">
+      <div class="campo-grupo">
+        <label>Teléfono / WhatsApp *</label>
+        <input type="tel" id="inp-telefono" placeholder="Ej: 3541 123456">
+      </div>
 
-      <!-- Botón central -->
-      <button class="btn-girar" id="btnGirar">Girar</button>
+      <div class="campo-grupo">
+        <label>Correo Electrónico *</label>
+        <input type="email" id="inp-email" placeholder="Ej: sofia@email.com">
+      </div>
+
+      <div id="error-paso1" class="error-msg">Por favor completá todos tus datos para continuar.</div>
+      <button class="btn-dorado" onclick="irAPaso2()">Continuar a Calificar</button>
     </div>
   </div>
 
-  <!-- Popup de premio ganado -->
+  <!-- ================= PASO 2: CALIFICACIÓN CON ESTRELLAS ================= -->
+  <div id="paso-2" class="contenedor-encuesta seccion-oculta">
+    <div class="card-elegante">
+      <div class="paso-indicador">
+        <div class="dot activo"></div>
+        <div class="dot activo"></div>
+        <div class="dot"></div>
+      </div>
+      <h2 class="card-titulo">Calificá tu Visita</h2>
+      <p class="intro-texto">Seleccioná de 1 a 5 estrellas en cada aspecto para habilitar la ruleta.</p>
+
+      <div class="item-calificacion" data-categoria="atencion">
+        <div class="item-titulo">Atención del Personal</div>
+        <div class="estrellas-row">
+          <span class="estrella" data-val="1">★</span>
+          <span class="estrella" data-val="2">★</span>
+          <span class="estrella" data-val="3">★</span>
+          <span class="estrella" data-val="4">★</span>
+          <span class="estrella" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="item-calificacion" data-categoria="comida">
+        <div class="item-titulo">Calidad de Comida</div>
+        <div class="estrellas-row">
+          <span class="estrella" data-val="1">★</span>
+          <span class="estrella" data-val="2">★</span>
+          <span class="estrella" data-val="3">★</span>
+          <span class="estrella" data-val="4">★</span>
+          <span class="estrella" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="item-calificacion" data-categoria="tiempo">
+        <div class="item-titulo">Tiempo de Servicio</div>
+        <div class="estrellas-row">
+          <span class="estrella" data-val="1">★</span>
+          <span class="estrella" data-val="2">★</span>
+          <span class="estrella" data-val="3">★</span>
+          <span class="estrella" data-val="4">★</span>
+          <span class="estrella" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="item-calificacion" data-categoria="ambiente">
+        <div class="item-titulo">Ambiente y Limpieza</div>
+        <div class="estrellas-row">
+          <span class="estrella" data-val="1">★</span>
+          <span class="estrella" data-val="2">★</span>
+          <span class="estrella" data-val="3">★</span>
+          <span class="estrella" data-val="4">★</span>
+          <span class="estrella" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="item-calificacion" data-categoria="general">
+        <div class="item-titulo">Satisfacción de la Experiencia General</div>
+        <div class="estrellas-row">
+          <span class="estrella" data-val="1">★</span>
+          <span class="estrella" data-val="2">★</span>
+          <span class="estrella" data-val="3">★</span>
+          <span class="estrella" data-val="4">★</span>
+          <span class="estrella" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="campo-grupo" style="margin-top: 12px;">
+        <label>Comentario o sugerencia (opcional)</label>
+        <textarea id="inp-comentario" rows="2" placeholder="Contanos qué fue lo que más te gustó o qué podemos mejorar..."></textarea>
+      </div>
+
+      <div id="error-paso2" class="error-msg">Por favor calificá las 5 categorías para habilitar la ruleta.</div>
+      <button class="btn-dorado" onclick="habilitarRuleta()">Enviar y Habilitar Ruleta</button>
+      <button class="btn-dorado btn-volver" onclick="volverAPaso1()">Volver a mis datos</button>
+    </div>
+  </div>
+
+  <!-- ================= PASO 3: RULETA DE PREMIOS (CON HOWIE) ================= -->
+  <div id="paso-3" class="seccion-oculta">
+    <p class="saludo-ruleta">¡Gracias <strong id="nombre-saludo"></strong>! Tocá <strong>GIRAR</strong> para descubrir tu obsequio.</p>
+
+    <div class="escenario-ruleta">
+      <div class="ruleta-wrapper">
+        <!-- Cuerpo de Howie -->
+        <div class="howie-contenedor">
+          <img src="hc.png" alt="Howie" class="howie-cuerpo" id="howieCuerpo">
+        </div>
+
+        <!-- Bisel dorado + Canvas de ruleta -->
+        <div class="bisel-exterior">
+          <div class="bisel-interior">
+            <canvas id="ruleta" width="600" height="600"></canvas>
+          </div>
+        </div>
+
+        <!-- Ala de Howie -->
+        <img src="ha.png" alt="Puntero Howie" class="howie-ala" id="howieAla">
+
+        <!-- Botón central -->
+        <button class="btn-girar" id="btnGirar">Girar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP DE PREMIO GANADO + GOOGLE REVIEWS ================= -->
   <div class="modal-overlay" id="modalPremio">
     <div class="modal-card">
       <div class="modal-subtitulo">Howard Johnson Plaza</div>
       <div class="modal-titulo">¡Felicitaciones ganaste!</div>
       <div class="modal-premio" id="textoPremioGanado">Premio</div>
-      <button class="btn-reiniciar" id="btnReiniciar">Volver a jugar</button>
+      <p class="nota-canje">Mostrá esta pantalla a nuestro equipo para disfrutar tu cortesía.</p>
+
+      <!-- Aparece SOLO si el promedio fue >= 4 estrellas -->
+      <div id="bloque-google" class="caja-google seccion-oculta">
+        <p><strong>¡Nos alegra que hayas disfrutado tu visita!</strong><br>¿Nos ayudás dejando tu opinión en Google? <span id="aviso-copiado" style="color: var(--gold-light); display:none;"><br>(Ya copiamos tu comentario para que solo tengas que pegarlo)</span></p>
+        <a id="link-google-reviews" href="#" target="_blank" class="btn-google" onclick="copiarComentarioAntesDeIr()">Dejar reseña en Google</a>
+      </div>
+
+      <button class="btn-dorado" id="btnReiniciar">Finalizar</button>
     </div>
   </div>
 
   <script>
+    /* =========================================================================
+       CONFIGURACIÓN DE ENLACES (PEGÁ ACÁ TUS 2 URLS CUANDO LAS TENGAS)
+       ========================================================================= */
+    const GOOGLE_SCRIPT_URL = "PEGAR_AQUI_TU_URL_DE_GOOGLE_APPS_SCRIPT";
+    const GOOGLE_REVIEW_LINK = "https://g.page/r/TU_ENLACE_DE_GOOGLE_AQUI/review";
+
+    /* =========================================================================
+       1. LÓGICA DE ENCUESTA Y DATOS DEL CLIENTE
+       ========================================================================= */
+    const datosCliente = {
+      nombre: "",
+      cumple: "",
+      telefono: "",
+      email: "",
+      atencion: 0,
+      comida: 0,
+      tiempo: 0,
+      ambiente: 0,
+      general: 0,
+      comentario: "",
+      premio: ""
+    };
+
+    document.querySelectorAll(".item-calificacion").forEach(bloque => {
+      const categoria = bloque.dataset.categoria;
+      const estrellas = bloque.querySelectorAll(".estrella");
+
+      estrellas.forEach(estrella => {
+        estrella.addEventListener("click", () => {
+          const valor = Number(estrella.dataset.val);
+          datosCliente[categoria] = valor;
+          estrellas.forEach(e => {
+            e.classList.toggle("seleccionada", Number(e.dataset.val) <= valor);
+          });
+        });
+      });
+    });
+
+    function irAPaso2() {
+      const nombre = document.getElementById("inp-nombre").value.trim();
+      const cumple = document.getElementById("inp-cumple").value;
+      const telefono = document.getElementById("inp-telefono").value.trim();
+      const email = document.getElementById("inp-email").value.trim();
+      const errorEl = document.getElementById("error-paso1");
+
+      if (!nombre || !cumple || !telefono || !email) {
+        errorEl.style.display = "block";
+        return;
+      }
+
+      errorEl.style.display = "none";
+      datosCliente.nombre = nombre;
+      datosCliente.cumple = cumple;
+      datosCliente.telefono = telefono;
+      datosCliente.email = email;
+
+      document.getElementById("paso-1").classList.add("seccion-oculta");
+      document.getElementById("paso-2").classList.remove("seccion-oculta");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function volverAPaso1() {
+      document.getElementById("paso-2").classList.add("seccion-oculta");
+      document.getElementById("paso-1").classList.remove("seccion-oculta");
+    }
+
+    function habilitarRuleta() {
+      const errorEl = document.getElementById("error-paso2");
+      if (
+        datosCliente.atencion === 0 ||
+        datosCliente.comida === 0 ||
+        datosCliente.tiempo === 0 ||
+        datosCliente.ambiente === 0 ||
+        datosCliente.general === 0
+      ) {
+        errorEl.style.display = "block";
+        return;
+      }
+
+      errorEl.style.display = "none";
+      datosCliente.comentario = document.getElementById("inp-comentario").value.trim();
+
+      document.getElementById("nombre-saludo").innerText = datosCliente.nombre.split(" ")[0];
+      document.getElementById("paso-2").classList.add("seccion-oculta");
+      document.getElementById("paso-3").classList.remove("seccion-oculta");
+      dibujarRuleta();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function guardarEnGoogleSheets() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PEGAR_AQUI")) {
+        console.warn("Falta configurar GOOGLE_SCRIPT_URL. Datos listos:", datosCliente);
+        return;
+      }
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosCliente)
+      }).catch(err => console.error("Error al guardar en Sheets:", err));
+    }
+
+    function copiarComentarioAntesDeIr() {
+      if (datosCliente.comentario && navigator.clipboard) {
+        navigator.clipboard.writeText(datosCliente.comentario).catch(() => {});
+      }
+    }
+
+    /* =========================================================================
+       2. RULETA DE PREMIOS (TU CÓDIGO EXACTO CON SONIDOS Y CONFETI)
+       ========================================================================= */
     const canvas = document.getElementById('ruleta');
     const ctx = canvas.getContext('2d');
     const btnGirar = document.getElementById('btnGirar');
@@ -359,7 +802,6 @@
     const textoPremioGanado = document.getElementById('textoPremioGanado');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
-    /* --- SONIDOS Y CONFETI --- */
     let audioCtx = null;
 
     function activarAudio() {
@@ -436,7 +878,6 @@
         }
       } catch (e) {}
     }
-    /* ------------------------- */
 
     function configurarRutaImagen(imgEl, nombreArchivo) {
       const rutas = [nombreArchivo, `img/${nombreArchivo}`, `assets/${nombreArchivo}`, `images/${nombreArchivo}`];
@@ -579,8 +1020,36 @@
           anguloActual = anguloInicial + rotacionTotal;
           dibujarRuleta();
 
+          const premioGanado = segmentos[indiceGanador].label;
+          datosCliente.premio = premioGanado;
+
+          // Enviamos la fila completa (datos + estrellas + comentario + premio) a Google Sheets
+          guardarEnGoogleSheets();
+
           setTimeout(() => {
-            textoPremioGanado.textContent = segmentos[indiceGanador].label;
+            textoPremioGanado.textContent = premioGanado;
+
+            // Calculamos promedio de estrellas para mostrar o no la invitación a Google
+            const promedio = (
+              datosCliente.atencion +
+              datosCliente.comida +
+              datosCliente.tiempo +
+              datosCliente.ambiente +
+              datosCliente.general
+            ) / 5;
+
+            const bloqueGoogle = document.getElementById("bloque-google");
+            const linkGoogle = document.getElementById("link-google-reviews");
+            if (promedio >= 4) {
+              linkGoogle.href = GOOGLE_REVIEW_LINK;
+              bloqueGoogle.classList.remove("seccion-oculta");
+              if (datosCliente.comentario.length > 0) {
+                document.getElementById("aviso-copiado").style.display = "inline";
+              }
+            } else {
+              bloqueGoogle.classList.add("seccion-oculta");
+            }
+
             modalPremio.classList.add('activo');
             sonarGanador();
             lanzarConfetiGanador();
@@ -592,14 +1061,13 @@
       requestAnimationFrame(animar);
     }
 
-    function reiniciarRuleta() {
+    function reiniciarTodo() {
       limpiarConfeti();
-      modalPremio.classList.remove('activo');
-      btnGirar.disabled = false;
+      location.reload();
     }
 
     btnGirar.addEventListener('click', girarRuleta);
-    btnReiniciar.addEventListener('click', reiniciarRuleta);
+    btnReiniciar.addEventListener('click', reiniciarTodo);
 
     dibujarRuleta();
   </script>
