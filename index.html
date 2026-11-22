@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ruleta de Premios | Howard Johnson Plaza Villa Carlos Paz</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     :root {
       /* =========================================================
@@ -118,7 +119,7 @@
       height: 100%;
       border-radius: 50%;
       padding: 12px;
-      background: linear-gradient(135deg, #f6e29c 0%, #c59b27 35%, #7d5c0c 65%, #f3dc91 100%);
+      background: linear-gradient(135deg, #f6e29c 0%, #f7a055 35%, #7d5c0c 65%, #f3dc91 100%);
       box-shadow:
         0 20px 50px rgba(0, 0, 0, 0.75),
         0 0 35px rgba(212, 175, 55, 0.2),
@@ -358,6 +359,73 @@
     const textoPremioGanado = document.getElementById('textoPremioGanado');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
+    /* --- SONIDOS Y CONFETI --- */
+    let audioCtx = null;
+
+    function activarAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function sonarTicRuleta() {
+      activarAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.045);
+
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.045);
+    }
+
+    function sonarGanador() {
+      activarAudio();
+      const notas = [523.25, 659.25, 783.99, 1046.50];
+      notas.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        const inicio = audioCtx.currentTime + i * 0.11;
+        osc.frequency.setValueAtTime(freq, inicio);
+
+        gain.gain.setValueAtTime(0.22, inicio);
+        gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.5);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(inicio);
+        osc.stop(inicio + 0.5);
+      });
+    }
+
+    function lanzarConfetiGanador() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 120,
+          spread: 75,
+          origin: { y: 0.6 },
+          colors: ['#f6e29c', '#ea8b38', '#ffffff', '#1c3561']
+        });
+      }
+    }
+
+    function limpiarConfeti() {
+      if (typeof confetti !== 'undefined' && confetti.reset) {
+        confetti.reset();
+      }
+    }
+    /* ------------------------- */
+
     function configurarRutaImagen(imgEl, nombreArchivo) {
       const rutas = [nombreArchivo, `img/${nombreArchivo}`, `assets/${nombreArchivo}`, `images/${nombreArchivo}`];
       let intento = 0;
@@ -429,7 +497,7 @@
       for (let i = 0; i < totalGajos; i++) {
         const anguloPin = anguloActual + i * arcoGajo;
         const pinX = centroX + Math.cos(anguloPin) * (radio - 14);
-        const pinY = centroY + Math.sin(anguloPin) * (radio - 14);
+        const pinY = cy = centroY + Math.sin(anguloPin) * (radio - 14);
 
         ctx.beginPath();
         ctx.arc(pinX, pinY, 5, 0, 2 * Math.PI);
@@ -453,6 +521,7 @@
 
     function girarRuleta() {
       if (girando) return;
+      activarAudio();
       girando = true;
       btnGirar.disabled = true;
 
@@ -475,7 +544,7 @@
       let ultimoGajoSonado = -1;
 
       function animar(ahora) {
-        const transcurrido = ahora - inicioTiempo;
+        const transcurrido = ahora - tiempoInicio;
         const progreso = Math.min(transcurrido / duracion, 1);
         const ease = 1 - Math.pow(1 - progreso, 4);
         anguloActual = anguloInicial + rotacionTotal * ease;
@@ -487,6 +556,7 @@
         );
         if (indiceBajoPuntero !== ultimoGajoSonado) {
           ultimoGajoSonado = indiceBajoPuntero;
+          sonarTicRuleta();
           howieAla.classList.add('tick');
           setTimeout(() => howieAla.classList.remove('tick'), 75);
         }
@@ -500,6 +570,8 @@
           setTimeout(() => {
             textoPremioGanado.textContent = segmentos[indiceGanador].label;
             modalPremio.classList.add('activo');
+            sonarGanador();
+            lanzarConfetiGanador();
             girando = false;
           }, 1000);
         }
@@ -509,6 +581,7 @@
     }
 
     function reiniciarRuleta() {
+      limpiarConfeti();
       modalPremio.classList.remove('activo');
       btnGirar.disabled = false;
     }
